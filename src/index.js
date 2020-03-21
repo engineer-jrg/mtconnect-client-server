@@ -1,6 +1,5 @@
 // Dependencias
 const Express = require('express');
-const { Router } = Express;
 const { ApolloServer } = require('apollo-server-express');
 const { fileLoader, mergeTypes, mergeResolvers }  =  require('merge-graphql-schemas');
 require('dotenv').config();
@@ -31,7 +30,7 @@ const path = '/graphql';
 app.get('/', function (req, res, next) {
   res.set('Content-Type', 'text/html');
   res.send(new Buffer('<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
-                        <span>Visita: \
+                        <span>Ingresar: \
                           <a href="'+path+'" style="text-decoration: none;">📦 Api</a>\
                         </span>'));
   res.send(', visita: '+path);
@@ -42,7 +41,7 @@ const server = new ApolloServer({
   resolvers,
   context: async ({req}) => {
     return {
-      Models,
+      Models: Models.models,
       SECRET: process.env.PORT,
       user: req.user
     }
@@ -53,8 +52,8 @@ server.applyMiddleware({ app, path });
 
 //  Conexion a mongoDB
 // pass: mt_connect-2020* || bklL4rwU7RfXDIdu
-const uri = "mongodb+srv://mtconnect-client-user:pass: mt_connect-2020*@cluster0-eh1rd.mongodb.net/test?retryWrites=true&w=majority";
-Mongoose.connect(process.env.MONGODB_URI || uri, {
+const uri_db_cloud = "mongodb+srv://mtconnect-client-user:pass: mt_connect-2020*@cluster0-eh1rd.mongodb.net/test?retryWrites=true&w=majority";
+Mongoose.connect(process.env.MONGODB_URI || uri_db_cloud, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true

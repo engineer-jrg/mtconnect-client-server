@@ -24,7 +24,7 @@ const login = async (email, password, User) => {
         if(!validPassword){
             errors_login.push({ path: "password", message: "La contraseña no es correcta"})
         }else{
-            token_login = auth.getToken(user);
+            token_login = getToken(user);
             success_login = true;
         }
     }
@@ -44,7 +44,7 @@ const checkHeaders = async (req, res, next) => {
             req.user = user;
         } catch (error) {
             // Token no valido
-            const newToken = await auth.checkToken(token);
+            const newToken = await checkToken(token);
             if(newToken){
                 req.user = newToken.user;
                 if(newToken.token){
@@ -65,9 +65,9 @@ const checkToken = async (token) => {
     }catch(e){
         return {}
     }
-    const user = await Models.User.findOne({_id:idUser});
+    const user = await Models.models.User.findOne({_id:idUser});
     if(user){
-        const newToken = auth.getToken(user)
+        const newToken = getToken(user)
         // console.log("=> new token: "+newToken)
         return {
             user: {
