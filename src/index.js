@@ -45,7 +45,9 @@ const server = new ApolloServer({
       SECRET: process.env.PORT,
       user: req.user
     }
-  }
+  },
+  introspection: true,
+  playground: true,
 });
 
 server.applyMiddleware({ app, path });
