@@ -1,9 +1,10 @@
+// Dependencias
 import Mongoose, { Schema, SchemaTypes } from 'mongoose';
-require('mongoose-type-email');
+import Validate from 'mongoose-validator';
 
-Mongoose.SchemaTypes.Email.defaults.message = 'Correo no valido';
-
+// Constante para el esquema de usuarios
 const userSchema = new Schema({
+  // Campos del usuario
   first_name: {
     type: String,
     required: true
@@ -18,12 +19,21 @@ const userSchema = new Schema({
     type: String,
     unique: true,
     required: true,
-    index: { unique: true }
+    index: { unique: true },
+    validate: Validate({
+      validator: 'isLength',
+      arguments: [3, 50],
+      message: 'El nombre del usuario debe estar entre {ARGS[0]} y {ARGS[1]} caracteres',
+    })
   },
   email: {
-    type: Mongoose.SchemaTypes.Email,
+    type: String,
     unique: true,
-    required: true
+    required: true,
+    validate: Validate({
+      validator: 'isEmail',
+      message: 'Introduce un correo valido',
+    })
   },
   password: {
     type: String,

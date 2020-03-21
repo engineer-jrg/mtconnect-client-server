@@ -22,9 +22,18 @@
     "nodemon": "^2.0.2"
   },
   "dependencies": {
+    "apollo-resolvers": "^1.4.2",
     "apollo-server-express": "^2.10.1",
+    "bcrypt": "^4.0.1",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "merge-graphql-schemas": "^1.7.6",
     "mongoose": "^5.9.2",
-    "mongoose-type-email": "^1.0.12"
+    "mongoose-type-email": "^1.0.12",
+    "mongoose-validator": "^2.1.0",
+    "path": "^0.12.7",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
   }
 }
