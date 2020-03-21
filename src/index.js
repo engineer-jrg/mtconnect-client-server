@@ -20,6 +20,9 @@ const resolvers = mergeResolvers(fileLoader(Path.join(__dirname, './resolvers'))
 import Models from './models';
 
 const app = Express();
+
+app.set('port', process.env.PORT || 4001)
+
 app.use(Cors({
   origin: [process.env.URL_CLIENT]
 }));
@@ -48,8 +51,8 @@ Mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mtconnect
 }).then(db => {
     console.log('DB is connected');
     // Lanzamiento del servidor
-    app.listen({ port: process.env.PORT || 4001 }, () =>
-      console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+    app.listen( app.get('port'), () =>
+      console.log(`🚀 Server ready at http://localhost:${app.get('port')}${server.graphqlPath}`)
     );
   })
   .catch(err => console.error(err));
