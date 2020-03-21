@@ -6,7 +6,7 @@ export const baseResolver = createResolver(
 );
 
 export const isAuthenticatedResolver = baseResolver.createResolver(
-    (root, args, { user }, info) => {
-      if (!user) throw new Error("No autenticado");
-    }
-  );
+  (root, args, { user }, info) => {
+    if (!user) throw new Error("No autenticado");
+  }
+);

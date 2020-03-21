@@ -25,7 +25,7 @@ app.set('port', process.env.PORT || 4000);
 app.use(Cors({
   origin: [process.env.URL_CLIENT]
 }));
-app.use(Auth.default.checkHeaders);
+app.use(Auth.checkHeaders);
 
 const server = new ApolloServer({
   typeDefs,
