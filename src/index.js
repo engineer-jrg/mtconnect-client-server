@@ -1,23 +1,27 @@
 // Dependencias
-import Express from 'express';
-import { ApolloServer } from 'apollo-server-express';
-import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
-import 'dotenv/config';
+const Express = require('express');
+const ApolloServer = require('apollo-server-express');
+const MergeGqlSchemas =  required('merge-graphql-schemas');
+const fileLoader = MergeGqlSchemas.fileLoader;
+const fileLoader = MergeGqlSchemas.fileLoader;
+const mergeTypes = MergeGqlSchemas.mergeTypes;
+const mergeResolvers = MergeGqlSchemas.mergeResolvers;
+require('dotenv').config();
 
-import Path from 'path';
-import Cors from 'cors';
+const Path =  required('path');
+const Cors =  required('cors');
 
-import Mongoose from 'mongoose';
+const Mongoose = required('mongoose');
 Mongoose.Promise = global.Promise;
 
 // Modulo de autenticacion
-import Auth from '../src/auth';
+const Auth = required('../src/auth');
 
 // ./graphql/typeDefs.js y ./graphql/resolvers.js
 const typeDefs = mergeTypes(fileLoader(Path.join(__dirname, './types')), { all: true });
 const resolvers = mergeResolvers(fileLoader(Path.join(__dirname, './resolvers')));
 
-import Models from './models';
+const Models = required('./models');
 
 const app = Express();
 
