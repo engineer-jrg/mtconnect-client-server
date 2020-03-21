@@ -31,7 +31,9 @@ const path = '/graphql';
 app.get('/', function (req, res, next) {
   res.set('Content-Type', 'text/html');
   res.send(new Buffer('<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
-                        <span>Visita: <a href="'+path+'">📦 Api</a></span>'));
+                        <span>Visita: \
+                          <a href="'+path+'" style="text-decoration: none;">📦 Api</a>\
+                        </span>'));
   res.send(', visita: '+path);
 });
 
@@ -50,7 +52,9 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path });
 
 //  Conexion a mongoDB
-Mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mtconnect-client', {
+// pass: mt_connect-2020* || bklL4rwU7RfXDIdu
+const uri = "mongodb+srv://mtconnect-client-user:pass: mt_connect-2020*@cluster0-eh1rd.mongodb.net/test?retryWrites=true&w=majority";
+Mongoose.connect(process.env.MONGODB_URI || uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
