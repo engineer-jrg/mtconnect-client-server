@@ -4,4 +4,4 @@ const models = {
   User,
 }
 
-export default models;
+exports.models = models;

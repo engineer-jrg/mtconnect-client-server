@@ -44,4 +44,4 @@ const userSchema = new Schema({
 
 const userModel = Mongoose.model('User', userSchema);
 
-export default userModel;
+exports.userModel = userModel;

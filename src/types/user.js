@@ -48,4 +48,4 @@ const typeDefs = gql`
 `;
 
 // Exportacion de la constante types de usuarios
-export default typeDefs;
+exports.typeDefs = typeDefs;
