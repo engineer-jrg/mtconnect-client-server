@@ -27,6 +27,10 @@ app.use(Cors({
 }));
 app.use(Auth.checkHeaders);
 
+app.get('/', function (req, res, next) {
+  res.send('Hello Api MTConnect Client');
+});
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
