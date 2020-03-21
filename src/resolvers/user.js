@@ -1,9 +1,9 @@
 // Dependencias
-import Bcrypt from 'bcrypt';
+const Bcrypt = require('bcrypt');
 
 // Modulo de autenticacion
-import Auth from '../auth';
-import { isAuthenticatedResolver } from '../permissions';
+const Auth = require('../auth');
+const { isAuthenticatedResolver } = require('../permissions');
 
 // Funcion para formaterar los errores
 const formatError = (error) => {

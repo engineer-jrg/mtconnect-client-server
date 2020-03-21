@@ -1,5 +1,5 @@
 // Dependencias
-import { gql } from 'apollo-server-express';
+const { gql } = require('apollo-server-express');
 
 // Constante de types para usuarios
 const typeDefs = gql`

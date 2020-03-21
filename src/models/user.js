@@ -1,6 +1,7 @@
 // Dependencias
-import Mongoose, { Schema, SchemaTypes } from 'mongoose';
-import Validate from 'mongoose-validator';
+const Mongoose = require('mongoose');
+const { Schema } = Mongoose;
+const Validate = require('mongoose-validator');
 
 // Constante para el esquema de usuarios
 const userSchema = new Schema({

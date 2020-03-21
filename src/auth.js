@@ -1,10 +1,10 @@
 // Dependencias
-import Bcrypt from 'bcrypt';
-import JsonWebToken from 'jsonwebtoken';
-import 'dotenv/config';
+const Bcrypt = require('bcrypt');
+const JsonWebToken = require('jsonwebtoken');
+require('dotenv').config();
 
 // Modelos
-import Models from './models/index';
+const Models = require('./models/index');
 
 const auth = {
     // funcion para generar un token de logeado

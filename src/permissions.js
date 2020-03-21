@@ -1,4 +1,4 @@
-import { createResolver } from 'apollo-resolvers';
+const { createResolver } =  require('apollo-resolvers');
 
 export const baseResolver = createResolver(
   null,
