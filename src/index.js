@@ -41,7 +41,7 @@ const server = new ApolloServer({
 server.applyMiddleware({ app });
 
 //  Conexion a mongoDB
-Mongoose.connect('mongodb://127.0.0.1:27017/mtconnect-client', {
+Mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mtconnect-client', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
