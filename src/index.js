@@ -27,8 +27,12 @@ app.use(Cors({
 }));
 app.use(Auth.checkHeaders);
 
+const path = '/graphql';
 app.get('/', function (req, res, next) {
-  res.send('Hello Api MTConnect Client');
+  res.set('Content-Type', 'text/html');
+  res.send(new Buffer('<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
+                        <span>Visita: <a href="'+path+'">📦 Api</a></span>'));
+  res.send(', visita: '+path);
 });
 
 const server = new ApolloServer({
@@ -43,7 +47,6 @@ const server = new ApolloServer({
   }
 });
 
-const path = '/graphql';
 server.applyMiddleware({ app, path });
 
 //  Conexion a mongoDB
@@ -53,9 +56,10 @@ Mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mtconnect
   useCreateIndex: true
 }).then(db => {
     console.log('DB is connected');
-    // Lanzamiento del servidor
-    app.listen( app.get('port'), () =>
-      console.log(`🚀 Server ready at http://localhost:${app.get('port')}${server.graphqlPath}`)
-    );
   })
   .catch(err => console.error(err));
+
+// Lanzamiento del servidor
+app.listen( app.get('port'), () =>
+console.log(`🚀 Server ready at http://localhost:${app.get('port')}${server.graphqlPath}`)
+);
