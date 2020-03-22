@@ -53,8 +53,8 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path });
 
 //  Conexion a mongoDB
-// pass: mt_connect-2020* || bklL4rwU7RfXDIdu
-const uri_db_cloud = "mongodb+srv://mtconnect-client-user:pass: mt_connect-2020*@cluster0-eh1rd.mongodb.net/test?retryWrites=true&w=majority";
+// pass: mt-connect-2020 || bklL4rwU7RfXDIdu
+const uri_db_cloud = "mongodb+srv://mtconnect-client-user:pass:mt-connect-2020@cluster0-eh1rd.mongodb.net/test?retryWrites=true&w=majority";
 Mongoose.connect(process.env.MONGODB_URI || uri_db_cloud, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
