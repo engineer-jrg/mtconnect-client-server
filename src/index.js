@@ -54,7 +54,7 @@ server.applyMiddleware({ app, path });
 
 //  Conexion a mongoDB
 // pass: mt-connect-2020 || bklL4rwU7RfXDIdu
-const uri_db_cloud = "mongodb+srv://mtconnect-client-user:pass:mt-connect-2020@cluster0-eh1rd.mongodb.net/test?retryWrites=true&w=majority";
+const uri_db_cloud = "mongodb+srv://mtconnect-client-user:mt-connect-2020@cluster0-eh1rd.mongodb.net/mtconnect-client?retryWrites=true&w=majority";
 Mongoose.connect(process.env.MONGODB_URI || uri_db_cloud, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -62,7 +62,10 @@ Mongoose.connect(process.env.MONGODB_URI || uri_db_cloud, {
 }).then(db => {
     console.log('DB is connected');
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.log('DB not connected');
+    console.error(err);
+  });
 
 // Lanzamiento del servidor
 app.listen( app.get('port'), () =>
