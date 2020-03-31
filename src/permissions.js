@@ -1,15 +1,14 @@
 const { createResolver } =  require('apollo-resolvers');
 
-const baseResolver = createResolver(
-  null,
-  (root, args, context, error) => error
-);
-
-const isAuthenticatedResolver = baseResolver.createResolver(
+const isAuthenticatedResolver = createResolver(
   (root, args, { user }, info) => {
-    if (!user) throw new Error("No autenticado");
+    if (!user){ //throw new Error("No autenticado");
+      info.custom_errors = [{
+        path: "allUser",
+        message: "No autenticado"
+      }]
+    }
   }
 );
 
-exports.baseResolver = baseResolver;
 exports.isAuthenticatedResolver = isAuthenticatedResolver;

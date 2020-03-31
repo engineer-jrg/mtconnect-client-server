@@ -2,12 +2,12 @@
 const Express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { fileLoader, mergeTypes, mergeResolvers }  =  require('merge-graphql-schemas');
-require('dotenv').config();
-
 const Path =  require('path');
 const Cors =  require('cors');
-
 const Mongoose = require('mongoose');
+require('dotenv').config();
+
+// Configuracion de promesas en moongose
 Mongoose.Promise = global.Promise;
 
 // Modulo de autenticacion
@@ -17,6 +17,7 @@ const Auth = require('./auth');
 const typeDefs = mergeTypes(fileLoader(Path.join(__dirname, './types')), { all: true });
 const resolvers = mergeResolvers(fileLoader(Path.join(__dirname, './resolvers')));
 
+// Modelos para la DB
 const Models = require('./models');
 
 const app = Express();
@@ -26,23 +27,22 @@ app.use(Cors({
 }));
 app.use(Auth.checkHeaders);
 
-const path = '/graphql';
+const path_gql = '/graphql';
 app.get('/', function (req, res, next) {
   res.set('Content-Type', 'text/html');
   res.send(new Buffer('<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
                         <span>Ingresar: \
-                          <a href="'+path+'" style="text-decoration: none;">📦 Api</a>\
+                          <a href="'+path_gql+'" style="text-decoration: none;">📦 Api</a>\
                         </span>'));
-  res.send(', visita: '+path);
+  res.send(', visita: '+path_gql);
 });
-
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async ({req}) => {
     return {
       Models: Models.models,
-      SECRET: process.env.PORT,
+      SECRET: process.env.SECRET,
       user: req.user
     }
   },
@@ -50,7 +50,7 @@ const server = new ApolloServer({
   playground: true,
 });
 
-server.applyMiddleware({ app, path });
+server.applyMiddleware({ app, path_gql });
 
 //  Conexion a mongoDB
 // pass: mt-connect-2020 || bklL4rwU7RfXDIdu
@@ -63,7 +63,7 @@ Mongoose.connect(process.env.MONGODB_URI || uri_db_cloud, {
     console.log('DB is connected');
   })
   .catch(err => {
-    console.log('DB not connected');
+    console.log('X Error DB no connected');
     console.error(err);
   });
 

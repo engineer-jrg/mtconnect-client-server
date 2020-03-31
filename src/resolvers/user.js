@@ -10,6 +10,7 @@ const formatError = (error) => {
   const errors = error.errors;
   let objErrors = [];
   if(errors){
+    
     Object.entries(errors).map( error => {
       const { message, path } = error[1];
       objErrors.push({ message, path });
@@ -24,7 +25,9 @@ const formatError = (error) => {
         });
         break;
       default:
-        objErrors.push({ message: error.errmsg, path:  "Desconocido" });
+        objErrors.push({ 
+          message: error.errmsg ? error.errmsg : "Error desconocido",
+          path:  error.path ? error.path : "Desconocido" });
         break;
     }
   }else{
@@ -37,28 +40,28 @@ const formatError = (error) => {
 
 const Query = {
   hello: () => 'Hello MTConnect Client!',
+
   allUser: isAuthenticatedResolver.createResolver(
-    (parent , args, { Models }) => Models.User.find()
+    (parent , args, { Models }, info, error) => {
+      if(info.custom_errors){
+        let errors = [];
+        if(info.custom_errors[0]){
+          errors = info.custom_errors;
+        }else{
+          errors.push(info.custom_errors)
+        }
+        return { success: false, users: [], errors: errors }
+      }
+      return Models.User.find();
+    }
   ),
+
   getUser: async (parent , args, { Models }) => {
-    const current_user = await Models.User.findOne(args);
-    if(current_user){
-      return {
-        success: true,
-        user: current_user,
-        errors: []
-      };
-    }else{
-      return {
-        success: false,
-        user: null,
-        errors: [
-          { 
-            path: "usuario",
-            message: "Usuario no encontrado"
-          }
-        ]
-      }; 
+    try {
+      const current_user = await Models.User.findOne(args);
+      return { success: true, user: current_user, errors: [] };
+    } catch (error) {
+      return { success: false, user: null, errors: formatError(error) };
     }
   }
 }
@@ -69,22 +72,20 @@ const Mutation = {
     const otherErrors = [];
     try {
       if(password.length<6){
-        otherErrors.push({ path: "password", message: "La contraseña debe ser mayor a 6 caracteres"});
+        otherErrors.push({ path: "password", message: "La contraseña debe ser mayor a 6 caracteres" });
       }
       if(otherErrors.length){
         throw otherErrors;
       }
       const hasPassword = await Bcrypt.hash( password, 10);
       const user = await Models.User.create({ ...args, password: hasPassword });
-      return {
-        success: user._id ? true : false,
-        errors: []
-      };
+      if(user._id){
+        return { success: true, errors: [] , token: Auth.getToken(user)};
+      }else{
+        return { success: false, errors: [] };
+      }
     } catch (error) {
-      return {
-        success: false,
-        errors: formatError(error)
-      };
+      return { success: false, token: null, errors: formatError(error) };
     }
   },
 

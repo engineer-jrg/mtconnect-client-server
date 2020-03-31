@@ -22,12 +22,13 @@ const typeDefs = gql`
     success: Boolean!
     token: String
     user: User
+    users: [User]
     errors: [Error]
   }
 
   type Query {
     hello: String,
-    allUser: [User]!,
+    allUser: Response!,
     getUser(_id: ID!): Response!
   }
 
