@@ -1,73 +1,67 @@
-// Dependencias
-const Express = require('express');
 const { ApolloServer } = require('apollo-server-express');
-const { fileLoader, mergeTypes, mergeResolvers }  =  require('merge-graphql-schemas');
-const Path =  require('path');
-const Cors =  require('cors');
+const Cors = require('cors');
+const Dotenv = require('dotenv');
+const Express = require('express');
+const { fileLoader, mergeTypes, mergeResolvers } = require('merge-graphql-schemas');
 const Mongoose = require('mongoose');
-require('dotenv').config();
+const Path = require('path');
+
+const Auth = require('./auth');
+const Models = require('./models');
+
 
 // Configuracion de promesas en moongose
 Mongoose.Promise = global.Promise;
 
-// Modulo de autenticacion
-const Auth = require('./auth');
+Dotenv.config();
 
 // ./graphql/typeDefs.js y ./graphql/resolvers.js
 const typeDefs = mergeTypes(fileLoader(Path.join(__dirname, './types')), { all: true });
 const resolvers = mergeResolvers(fileLoader(Path.join(__dirname, './resolvers')));
 
-// Modelos para la DB
-const Models = require('./models');
-
 const app = Express();
 app.set('port', process.env.PORT || 4000);
 app.use(Cors({
-  origin: [process.env.URL_CLIENT]
+  origin: [process.env.URL_CLIENT],
 }));
 app.use(Auth.checkHeaders);
 
-const path_gql = '/graphql';
-app.get('/', function (req, res, next) {
+const pathGQL = '/graphql';
+app.get('/', (req, res) => {
   res.set('Content-Type', 'text/html');
-  res.send(new Buffer('<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
+  res.send(Buffer.from((`<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
                         <span>Ingresar: \
-                          <a href="'+path_gql+'" style="text-decoration: none;">📦 Api</a>\
-                        </span>'));
-  res.send(', visita: '+path_gql);
+                          <a href="${pathGQL}" style="text-decoration: none;">📦 Api</a>\
+                        </span>`)));
+  res.send(`, visita: ${pathGQL}`);
 });
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({req}) => {
-    return {
-      Models: Models.models,
-      SECRET: process.env.SECRET,
-      user: req.user
-    }
-  },
+  context: async ({ req }) => ({
+    Models: Models.models,
+    SECRET: process.env.SECRET,
+    user: req.user,
+  }),
   introspection: true,
   playground: true,
 });
 
-server.applyMiddleware({ app, path_gql });
+server.applyMiddleware({ app, pathGQL });
 
-//  Conexion a mongoDB
 // pass: mt-connect-2020 || bklL4rwU7RfXDIdu
-const uri_db_cloud = "mongodb+srv://mtconnect-client-user:mt-connect-2020@cluster0-eh1rd.mongodb.net/mtconnect-client?retryWrites=true&w=majority";
-Mongoose.connect(process.env.MONGODB_URI || uri_db_cloud, {
+const uriDbCloud = 'mongodb+srv://mtconnect-client-user:mt-connect-2020@cluster0-eh1rd.mongodb.net/mtconnect-client?retryWrites=true&w=majority';
+Mongoose.connect(process.env.MONGODB_URI || uriDbCloud, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useCreateIndex: true
-}).then(db => {
-    console.log('DB is connected');
-  })
-  .catch(err => {
+  useCreateIndex: true,
+}).then(() => {
+  console.log('DB is connected');
+})
+  .catch((err) => {
     console.log('X Error DB no connected');
     console.error(err);
   });
 
 // Lanzamiento del servidor
-app.listen( app.get('port'), () =>
-console.log(`🚀 Server ready at http://localhost:${app.get('port')}${server.graphqlPath}`)
-);
+app.listen(app.get('port'), () => console.log(`🚀 Server ready at http://localhost:${app.get('port')}${server.graphqlPath}`));
