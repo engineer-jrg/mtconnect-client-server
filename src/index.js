@@ -6,9 +6,9 @@ const { fileLoader, mergeTypes, mergeResolvers } = require('merge-graphql-schema
 const Mongoose = require('mongoose');
 const Path = require('path');
 
+const Config = require('../config/environment/config');
 const Auth = require('./auth');
 const Models = require('./models');
-
 
 // Configuracion de promesas en moongose
 Mongoose.Promise = global.Promise;
@@ -20,9 +20,9 @@ const typeDefs = mergeTypes(fileLoader(Path.join(__dirname, './types')), { all: 
 const resolvers = mergeResolvers(fileLoader(Path.join(__dirname, './resolvers')));
 
 const app = Express();
-app.set('port', process.env.PORT || 4000);
+app.set('port', Config.get('port') || 4000);
 app.use(Cors({
-  origin: [process.env.URL_CLIENT],
+  origin: [Config.get('urlClient')],
 }));
 app.use(Auth.checkHeaders);
 
@@ -40,7 +40,7 @@ const server = new ApolloServer({
   resolvers,
   context: async ({ req }) => ({
     Models: Models.models,
-    SECRET: process.env.SECRET,
+    SECRET: Config.get('secret'),
     user: req.user,
   }),
   introspection: true,
@@ -49,9 +49,15 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app, pathGQL });
 
-// pass: mt-connect-2020 || bklL4rwU7RfXDIdu
-const uriDbCloud = 'mongodb+srv://mtconnect-client-user:mt-connect-2020@cluster0-eh1rd.mongodb.net/mtconnect-client?retryWrites=true&w=majority';
-Mongoose.connect(process.env.MONGODB_URI || uriDbCloud, {
+let mongoUri = Config.get('db.host') || null;
+if (Config.get('db.user')) {
+  mongoUri = `${mongoUri
+  + Config.get('db.user')
+  }:${Config.get('db.password')
+  }${Config.get('db.suffix')}`;
+}
+
+Mongoose.connect(mongoUri || Config.default('db.host'), {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,

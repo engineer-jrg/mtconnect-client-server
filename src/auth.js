@@ -1,14 +1,14 @@
-// Dependencias
 const Bcrypt = require('bcrypt');
 const Dotenv = require('dotenv');
 const JsonWebToken = require('jsonwebtoken');
 
+const Config = require('../config/environment/config');
 const Models = require('./models/index');
 
 Dotenv.config();
 
 const getToken = ({ _id: id }) => {
-  const token = JsonWebToken.sign({ user: { id } }, process.env.SECRET, { expiresIn: '10s' });
+  const token = JsonWebToken.sign({ user: { id } }, Config.get('secret'), { expiresIn: '10s' });
   return token;
 };
 
@@ -64,7 +64,7 @@ const checkHeaders = async (req, res, next) => {
   const token = req.headers['x-token'];
   if (token) {
     try {
-      const { user } = JsonWebToken.verify(token, process.env.SECRET);
+      const { user } = JsonWebToken.verify(token, Config.get('secret'));
       req.user = user;
     } catch (error) {
       // Token no valido

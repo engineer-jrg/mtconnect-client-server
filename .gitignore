@@ -3,5 +3,9 @@
 # dependencies
 /node_modules
 
+# env
+/config/environment/.env.development.json
+/config/environment/.env.production.json
+
 # production
 /build
