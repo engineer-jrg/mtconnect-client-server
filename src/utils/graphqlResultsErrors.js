@@ -66,10 +66,8 @@ const formatErrors = (errors) => {
   };
 };
 
-export {
-  getError,
-  errorName,
-  typeError,
-  formatErrors,
-  formatError,
-};
+exports.getError = getError;
+exports.errorName = errorName;
+exports.typeError = typeError;
+exports.formatErrors = formatErrors;
+exports.formatError = formatError;
