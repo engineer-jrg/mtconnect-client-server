@@ -1,7 +1,3 @@
-const User = require('./user');
+const { UserModel } = require('./user');
 
-const models = {
-  User: User.userModel,
-};
-
-exports.models = models;
+exports.Models = { User: UserModel };

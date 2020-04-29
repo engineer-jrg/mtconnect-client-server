@@ -54,5 +54,11 @@ module.exports =  {
       default: '',
       env: "DB_SUFFIX"
     },
+    type: {
+      doc: "El tipo de conexión.",
+      format: ["mongoLocal", "mongoCloud"],
+      default: "mongoLocal",
+      env: "DB_TYPE"
+    }
   }
 }

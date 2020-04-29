@@ -1,3 +1,4 @@
+const Bcrypt = require('bcrypt');
 const Mongoose = require('mongoose');
 const Validate = require('mongoose-validator');
 
@@ -34,9 +35,24 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true,
+    validate: Validate({
+      validator: 'isLength',
+      arguments: [6, 100],
+      message: 'La contraseña debe estar entre {ARGS[0]} y {ARGS[1]} caracteres',
+    }),
   },
+});
+
+userSchema.pre('save', async function save(next) {
+  if (!this.isModified('password')) return next();
+  try {
+    this.password = await Bcrypt.hash(this.password, 10);
+    return next();
+  } catch (err) {
+    return next(err);
+  }
 });
 
 const userModel = Mongoose.model('User', userSchema);
 
-exports.userModel = userModel;
+exports.UserModel = userModel;

@@ -1,38 +1,31 @@
 const Bcrypt = require('bcrypt');
-const Dotenv = require('dotenv');
 const JsonWebToken = require('jsonwebtoken');
 
 const Config = require('../config/environment/config');
-const Models = require('./models/index');
+const { Models } = require('./models/index');
+const {
+  getError, errorName,
+} = require('./utils/graphqlResultsErrors');
 
-Dotenv.config();
-
+// Obtener un token de sesión
 const getToken = ({ _id: id }) => {
   const token = JsonWebToken.sign({ user: { id } }, Config.get('secret'), { expiresIn: '10s' });
   return token;
 };
 
 // funcion para logear al usuario
-const login = async (email, password, User) => {
-  const errorsLogin = [];
-  let successLogin = false;
-  let tokenLogin = 'null';
+const login = async (email, password, { User }) => {
   const user = await User.findOne({ email });
   if (!user) {
-    errorsLogin.push({ path: 'email', message: 'Este correo no se encuentra registrado' });
-  } else {
-    const validPassword = await Bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      errorsLogin.push({ path: 'password', message: 'La contraseña no es correcta' });
-    } else {
-      tokenLogin = getToken(user);
-      successLogin = true;
-    }
+    return getError('email', errorName.INVALID_EMAIL);
+  }
+  const validPassword = await Bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    return getError('password', errorName.INVALID_PASS);
   }
   return {
-    success: successLogin,
-    token: tokenLogin,
-    errors: errorsLogin,
+    success: true,
+    token: getToken(user),
   };
 };
 
@@ -41,14 +34,12 @@ const checkToken = async (token) => {
   try {
     const { user } = JsonWebToken.decode(token);
     if (user) {
-      const { _id: id } = user;
-      const userExist = await Models.models.User.findOne({ _id: id }).size();
-      if (userExist) {
-        const newToken = getToken(user);
+      const userExists = await Models.User.findOne({ _id: user.id }, { _id: 1 });
+      const { _id: id } = userExists;
+      if (id) {
+        const newToken = getToken(userExists);
         return {
-          user: {
-            _id: id,
-          },
+          user: { id },
           token: newToken,
         };
       }

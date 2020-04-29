@@ -1,32 +1,29 @@
-const { ApolloServer } = require('apollo-server-express');
 const Cors = require('cors');
-const Dotenv = require('dotenv');
 const Express = require('express');
-const { fileLoader, mergeTypes, mergeResolvers } = require('merge-graphql-schemas');
-const Mongoose = require('mongoose');
-const Path = require('path');
 
 const Config = require('../config/environment/config');
 const Auth = require('./auth');
-const Models = require('./models');
+const databaseConnection = require('./utils/databaseConnection');
+const graphqlServer = require('./utils/graphqlServer');
 
-// Configuracion de promesas en moongose
-Mongoose.Promise = global.Promise;
+// Conexion a la db
+databaseConnection.conect();
 
-Dotenv.config();
-
-// ./graphql/typeDefs.js y ./graphql/resolvers.js
-const typeDefs = mergeTypes(fileLoader(Path.join(__dirname, './types')), { all: true });
-const resolvers = mergeResolvers(fileLoader(Path.join(__dirname, './resolvers')));
-
+// Configuracion del servidor
 const app = Express();
-app.set('port', Config.get('port') || 4000);
+app.set('port', Config.get('port') || Config.default('port'));
 app.use(Cors({
   origin: [Config.get('urlClient')],
 }));
+
+// Middleware
 app.use(Auth.checkHeaders);
 
+// Agregar graphql al servidor
+const serverGQL = graphqlServer.server();
 const pathGQL = '/graphql';
+serverGQL.applyMiddleware({ app, pathGQL });
+
 app.get('/', (req, res) => {
   res.set('Content-Type', 'text/html');
   res.send(Buffer.from((`<h2>👋 Hello Api MTConnect Client 🚀</h2><br>\
@@ -35,39 +32,8 @@ app.get('/', (req, res) => {
                         </span>`)));
   res.send(`, visita: ${pathGQL}`);
 });
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: async ({ req }) => ({
-    Models: Models.models,
-    SECRET: Config.get('secret'),
-    user: req.user,
-  }),
-  introspection: true,
-  playground: true,
-});
 
-server.applyMiddleware({ app, pathGQL });
-
-let mongoUri = Config.get('db.host') || null;
-if (Config.get('db.user')) {
-  mongoUri = `${mongoUri
-  + Config.get('db.user')
-  }:${Config.get('db.password')
-  }${Config.get('db.suffix')}`;
-}
-
-Mongoose.connect(mongoUri || Config.default('db.host'), {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-}).then(() => {
-  console.log('DB is connected');
-})
-  .catch((err) => {
-    console.log('X Error DB no connected');
-    console.error(err);
-  });
-
-// Lanzamiento del servidor
-app.listen(app.get('port'), () => console.log(`🚀 Server ready at http://localhost:${app.get('port')}${server.graphqlPath}`));
+app.listen(
+  app.get('port'),
+  () => console.log(`🚀 Server ready at http://localhost:${app.get('port')}${serverGQL.graphqlPath}`),
+);

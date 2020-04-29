@@ -1,14 +1,11 @@
 const { createResolver } = require('apollo-resolvers');
 
+const { getError, errorName } = require('./utils/graphqlResultsErrors');
+
 const isAuthenticatedResolver = createResolver(
   (root, args, { user }) => {
     if (!user) {
-      return {
-        success: false,
-        errors: [
-          { path: 'allUser', message: 'No autenticado' },
-        ],
-      };
+      return getError('isAuthenticatedResolver', errorName.UNAUTHORIZED);
     }
     return undefined;
   },

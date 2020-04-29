@@ -1,42 +1,10 @@
-const Bcrypt = require('bcrypt');
-
 const Auth = require('../auth');
 const { isAuthenticatedResolver } = require('../permissions');
+const {
+  getError, errorName, formatErrors,
+} = require('../utils/graphqlResultsErrors');
 
-// Funcion para formaterar los errores
-const formatError = (error) => {
-  const { errors } = error;
-  const objErrors = [];
-  if (errors) {
-    Object.entries(errors).forEach((e) => {
-      const { message, path } = e[1];
-      objErrors.push({ message, path });
-    });
-  } else if (error.name) {
-    let path = '';
-    switch (error.code) {
-      case 11000:
-        Object.entries(error.keyValue).forEach((err) => { path = err[0].toString(); });
-        objErrors.push({
-          message: 'Existe un campo duplicado en el formulario',
-          path,
-        });
-        break;
-      default:
-        objErrors.push({
-          message: error.errmsg ? error.errmsg : 'Error desconocido',
-          path: error.path ? error.path : 'Desconocido',
-        });
-        break;
-    }
-  } else {
-    return error;
-  }
-  return objErrors;
-};
-
-// Constante de revolvers para usuarios
-
+// Revolvers para usuarios
 const Query = {
   hello: () => 'Hello MTConnect Client!',
 
@@ -46,51 +14,38 @@ const Query = {
       if (users) {
         return { success: true, users };
       }
-      return {
-        success: false,
-        errors: [
-          { path: 'allUser', message: 'Error al consultar los usuarios' },
-        ],
-      };
+      return getError('allUser', errorName.QUERY_NOT_FOUND);
     },
   ),
 
   getUser: async (parent, args, { Models }) => {
     try {
       const user = await Models.User.findOne(args);
-      return { success: true, user, errors: [] };
+      if (user) return { success: true, user, errors: [] };
     } catch (error) {
-      return { success: false, user: null, errors: formatError(error) };
+      return formatErrors(error);
     }
+    return getError('getUser', errorName.QUERY_NOT_FOUND);
   },
 };
 
 const Mutation = {
   // Crear un usuario
   createUser: async (parent, { password, ...args }, { Models }) => {
-    const otherErrors = [];
     try {
-      if (password.length < 6) {
-        otherErrors.push({ path: 'password', message: 'La contraseña debe ser mayor a 6 caracteres' });
-      }
-      if (otherErrors.length) {
-        throw otherErrors;
-      }
-      const hasPassword = await Bcrypt.hash(password, 10);
-      const user = await Models.User.create({ ...args, password: hasPassword });
-      const { _id: id } = user;
-      if (id) {
+      const user = await Models.User.create({ password, ...args });
+      if (!user) {
         return { success: true, errors: [], token: Auth.getToken(user) };
       }
-      return { success: false, errors: [] };
+      return getError('createUser', errorName.QUERY_NOT_FOUND);
     } catch (error) {
-      return { success: false, token: null, errors: formatError(error) };
+      return formatErrors(error);
     }
   },
 
   // Logear usuario
-  loginUser: async (parent, { email, password }, { Models: { User }, SECRET }) => Auth.login(
-    email, password, User, SECRET,
+  loginUser: async (parent, { email, password }, { Models }) => Auth.login(
+    email, password, Models,
   ),
 };
 
